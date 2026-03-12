@@ -196,6 +196,17 @@ const storyMap: Record<string, { story: string; choices: Choice[]; image: string
         ],
         image: "black",
     },
+    "Buscar leña para la fogata": {
+        story: "Ahora tienes leña para la fogata.",
+        choices: [
+            { title: "Encender una fogata", object: "Leña" },
+            { title: "Descansar", object: null },
+            { title: "Explorar el bosque de noche", object: null },
+        ],
+        image: "brown",
+    }
+
+
 }
 
 function App2() {
@@ -206,12 +217,19 @@ function App2() {
         { title: "Gritar por ayuda", object: null },
     ])
     const [image, setImage] = useState("grey")
-    const [inventory, setInventory] = useState<string[]>([])
+    const [inventory, setInventory] = useState<string[]>(["Leña", "Caramelo", "Piñata", "Esdrujula"])
 
     const handleChoice = (choice: Choice) => {
         if (choice.object) {
-            setInventory(prev => [...prev, choice.object!])
+            if (!inventory.includes(choice.object)) {
+                // Agregar el objeto al inventario
+                setInventory(prev => [...prev, choice.object!])
+            } else if (inventory.includes(choice.object)) {
+                // Si el objeto ya está en el inventario, eliminarlo               
+                setInventory(prev => prev.filter(item => item !== choice.object))
+            }
         }
+
         const result = storyMap[choice.title]
         if (result) {
             setStory(result.story)
@@ -225,7 +243,16 @@ function App2() {
             <h1>Historia</h1>
             <p>{story}</p>
             {inventory.length > 0 && (
-                <p><strong>Inventario:</strong> {inventory.join(", ")}</p>
+                <div className="inventory-box">
+                    <img className="inventory-bag"src="https://png.pngtree.com/png-clipart/20250104/original/pngtree-backpack-icon-design-template-vector-isolated-png-image_4092136.png"></img> 
+                    <div className="inventory-items">
+                        {inventory.map(item => (
+                            <div key={item} className="inventory-item">
+                                {item}
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
             <h2>¿Qué haces?</h2>
             <button onClick={() => handleChoice(choices[0])}> {choices[0].title} </button>
