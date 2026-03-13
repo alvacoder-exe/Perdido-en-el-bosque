@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Acc.css"; // Import will be handled in main/root
+import { postUsers } from "./config/endpoints.ts";
 
 /*crear cuenta para ingresar al juego*/
 
@@ -13,14 +14,38 @@ const CreateAcc: React.FC<CreateAccProps> = ({ onCreateAcc }) => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState("");
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (password !== confirmPassword) {
             setError("Passwords do not match");
             return;
         }
-        // Here you would typically send the username and password to your backend to create the account
-        onCreateAcc();
+
+        setLoading(true);
+        setError("");
+        setSuccess("");
+
+        try {
+            await postUsers({
+                username,
+                password,
+            });
+            setSuccess("Account created successfully!");
+            setUsername("");
+            setPassword("");
+            setConfirmPassword("");
+            setTimeout(() => {
+                onCreateAcc();
+            }, 1500);
+        } catch (err) {
+            setError("Error creating account. Please try again.");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
     return (
         <div className="create-acc-container">
@@ -33,6 +58,8 @@ const CreateAcc: React.FC<CreateAccProps> = ({ onCreateAcc }) => {
                         id="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
+                        disabled={loading}
+                        required
                     />
                 </div>
                 <div className="form-group">
@@ -42,6 +69,8 @@ const CreateAcc: React.FC<CreateAccProps> = ({ onCreateAcc }) => {
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        disabled={loading}
+                        required
                     />
                 </div>
                 <div className="form-group">
@@ -51,10 +80,15 @@ const CreateAcc: React.FC<CreateAccProps> = ({ onCreateAcc }) => {
                         id="confirmPassword"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
+                        disabled={loading}
+                        required
                     />
                 </div>
                 {error && <p className="error">{error}</p>}
-                <button type="submit">Create Account</button>
+                {success && <p className="success">{success}</p>}
+                <button type="submit" disabled={loading}>
+                    {loading ? "Creating Account..." : "Create Account"}
+                </button>
             </form>
         </div>
     );

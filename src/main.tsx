@@ -6,13 +6,14 @@ import Login from './Login.tsx';
 import CreateAcc from './Acc.tsx';
 import { useState } from 'react';
 
+// eslint-disable-next-line react-refresh/only-export-components
 function Root() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showCreateAcc, setShowCreateAcc] = useState(false);
   return (
     <StrictMode>
       {isLoggedIn ? (
-        <App />
+        <App onLogout={() => setIsLoggedIn(false)} />
       ) : showCreateAcc ? (
         <CreateAcc onCreateAcc={() => setShowCreateAcc(false)} />
       ) : (
